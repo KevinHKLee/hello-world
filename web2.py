@@ -112,3 +112,6 @@ app.layout = html.Div([navbar, body])
 if __name__ == "__main__":
     app.run_server(debug=True)
 
+# @echo off    
+# pushd C:\Users\LEE\Documents\Development\ACE
+# C:\Windows\System32\cmd.exe "/K" C:\Users\LEE\Anaconda3\Scripts\activate.bat dev
