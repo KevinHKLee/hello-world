@@ -3,40 +3,43 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_dangerously_set_inner_html
+import dash_table
+import pandas as pd
 from dash.dependencies import Input, Output, State
 
-
-# navbar =     dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
-#         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-#           <a class="navbar-brand" href="#">Navbar</a>
-#           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-#             <span class="navbar-toggler-icon"></span>
-#           </button>
-
-#           <div class="collapse navbar-collapse" id="navbarColor01">
-#             <ul class="navbar-nav mr-auto">
-#               <li class="nav-item active">
-#                 <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-#               </li>
-#               <li class="nav-item">
-#                 <a class="nav-link" href="https://www.google.com.my">Features</a>
-#               </li>
-#               <li class="nav-item">
-#                 <a class="nav-link" href="#">Pricing</a>
-#               </li>
-#               <li class="nav-item">
-#                 <a class="nav-link" href="#">About</a>
-#               </li>
-#             </ul>
-#             <form class="form-inline my-2 my-lg-0">
-#               <input class="form-control mr-sm-2" type="text" placeholder="Search">
-#               <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-#             </form>
-#           </div>
-#         </nav>
-#     ''')
-
+# declare static components
 PLOTLY_LOGO = "/assets/april.png"
+
+# # connect to data
+# df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+
+# initialize list of lists 
+data = [['tom', 10], ['nick', 15], ['juli', 14]] 
+# Create the pandas DataFrame 
+df = pd.DataFrame(data, columns = ['Name', 'Age']) 
+
+# intialise data of lists. 
+data = {'Name':['Tom', 'nick', 'krish', 'jack'], 'Age':[20, 21, 19, 18]} 
+# Create DataFrame 
+df = pd.DataFrame(data) 
+
+# initialise data of lists. 
+data = {'Name':['Tom', 'Jack', 'nick', 'juli'], 'marks':[99, 98, 95, 90]} 
+# Creates pandas DataFrame. 
+df = pd.DataFrame(data, index =['rank1', 'rank2', 'rank3', 'rank4']) 
+
+# List1  
+Name = ['tom', 'krish', 'nick', 'juli']  
+# List2  
+Age = [25, 30, 26, 22]  
+# get the list of tuples from two lists.  
+# and merge them by using zip().  
+list_of_tuples = list(zip(Name, Age))  
+# Assign data to tuples.  
+list_of_tuples   
+# Converting lists of tuples into  
+# pandas Dataframe.  
+df = pd.DataFrame(list_of_tuples, columns = ['Name', 'Age'])  
 
 search_bar = dbc.Row(
     [
@@ -45,13 +48,12 @@ search_bar = dbc.Row(
         #     dbc.Button("Search", color="primary", className="ml-2"),
         #     width="auto",
         # ),
-        dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
+        dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px")),
     ],
     no_gutters=True,
     className="ml-auto flex-nowrap mt-3 mt-md-0",
     align="center",
 )
-
 
 navbar = dbc.Navbar(
     [
@@ -60,7 +62,7 @@ navbar = dbc.Navbar(
             dbc.Row(
                 [
                     # dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-                    dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2")),
+                    dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2", style={'font-size': '1.4rem'})),
                 ],
                 align="center",
                 no_gutters=True,
@@ -73,29 +75,8 @@ navbar = dbc.Navbar(
     # color="dark",
     color = '#2F4F4F',
     dark=True,
-    style = {'padding':'6px','font-size':'40'}
+    style = {'padding':'7px'}
 )
-
-
-# navbar = dbc.NavbarSimple(
-#     children=[
-#         dbc.NavItem(dbc.NavLink("Link", href="#")),
-#         dbc.DropdownMenu(
-#             nav=True,
-#             in_navbar=True,
-#             label="Menu",
-#             children=[
-#                 dbc.DropdownMenuItem("Entry 1"),
-#                 dbc.DropdownMenuItem("Entry 2"),
-#                 dbc.DropdownMenuItem(divider=True),
-#                 dbc.DropdownMenuItem("Entry 3"),
-#             ],
-#         ),
-#     ],
-#     brand="Demo",
-#     brand_href="#",
-#     sticky="top",
-# )
 
 body = dbc.Container(
     [
@@ -103,24 +84,47 @@ body = dbc.Container(
             [
                 dbc.Col(
                     [
-                        html.H4("Views"),
-                        html.P('Dashboard'),
-                        html.P('Maintenance Order'),
-                        html.P('Monitoring'),
+                        # html.H4("Views", style={'padding-bottom':'15px'}),
+                        # html.P('Dashboard', style={'padding-bottom':'6px'}),
+                        # html.P('Maintenance Order', style={'padding-bottom':'6px'}),
+                        # html.P('Monitoring', style={'padding-bottom':'6px'}),
+
+                        dbc.ButtonGroup(
+                            [
+                                dbc.Button("Dashboard",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                                dbc.Button("Maintenance Order",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                                dbc.Button("Monitoring",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                            ],
+                            vertical=True,
+                            style={'width':'100%'}
+                        ),
 
                         # dbc.Button("View details", color="secondary"),
                     ],
                     xl=2,
                     md=4,
                     xs=6,
-                    className="pt-2",
-                    style={'background-color': '#f0f0f0', 'min-height': 'calc(100vh - 71px)', 'padding-bottom': '15px'}
+                    # className="pt-2",
+                    style={'background-color': '#f0f0f0', 'min-height': 'calc(100vh - 58px)', 'padding': '0 0 15px 0'}
                 ),
                 dbc.Col(
                     [
-                        html.H4("Graph"),
+                        html.H4("Report"),
+
                         dcc.Graph(
-                            figure={"data": [{"x": [1, 2, 3], "y": [1, 4, 9]}]}
+                            figure={"data": [{"x": [1, 2, 3], "y": [1, 4, 9]},{"x": [1, 2, 3], "y": [7, 5, 12]}]}
+                        ),
+
+                        dash_table.DataTable(
+                            id='table',
+                            columns=[{"name": i, "id": i} for i in df.columns],
+                            data=df.to_dict('records'),
+                            style_cell_conditional=[
+                                {'if': {'column_id': 'Name'},
+                                 'width': '50px'},
+                                {'if': {'column_id': 'Age'},
+                                 'width': '50px'},
+                            ]
                         ),
                     ],
                     xl=10,
@@ -133,6 +137,9 @@ body = dbc.Container(
     ],
     style={'max-width':'100%'},
 )
+
+
+
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.config.suppress_callback_exceptions = True
@@ -157,4 +164,4 @@ def favicon():
                                      'favicon.ico')
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True,host='0.0.0.0',port=8050)
