@@ -48,29 +48,42 @@ search_bar = dbc.Row(
         #     dbc.Button("Search", color="primary", className="ml-2"),
         #     width="auto",
         # ),
-        dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px")),
+        dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px", width="140px")),
     ],
     no_gutters=True,
-    className="ml-auto flex-nowrap mt-3 mt-md-0",
-    align="center",
+    className="ml-auto",
+    # style={'position': 'absolute', 'right': '10px', 'top': '5px'},
+    # align="center",
 )
 
 navbar = dbc.Navbar(
     [
-        html.A(
-            # Use row and col to control vertical alignment of logo / brand
-            dbc.Row(
-                [
-                    # dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-                    dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2", style={'font-size': '1.4rem'})),
-                ],
-                align="center",
-                no_gutters=True,
-            ),
-            href="#",
+        # html.A(
+        #     # Use row and col to control vertical alignment of logo / brand
+        #     dbc.Row(
+        #         [
+        #             # dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
+        #             dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2", style={'font-size': '1.4rem'})),
+        #         ],
+        #         align="center",
+        #         no_gutters=True,
+        #     ),
+        #     href="#",
+        # ),
+
+        dbc.Row(
+            [
+                # dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
+                dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2", style={'font-size': '1.4rem'})),
+                dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px", width="140px"), style={'text-align': 'right'}),
+            ],
+            # align="center",   
+            no_gutters=True,
+            style = {'flex': '1', 'justify-content':'space-between'}
         ),
-        dbc.NavbarToggler(id="navbar-toggler"),
-        dbc.Collapse(search_bar, id="navbar-collapse", navbar=True),
+
+        # dbc.NavbarToggler(id="navbar-toggler"),
+        # dbc.Collapse(search_bar, id="navbar-collapse", navbar=True),
     ],
     # color="dark",
     color = '#2F4F4F',
@@ -91,9 +104,12 @@ body = dbc.Container(
 
                         dbc.ButtonGroup(
                             [
-                                dbc.Button("Dashboard",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
-                                dbc.Button("Maintenance Order",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
-                                dbc.Button("Monitoring",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                                # dbc.Button("Dashboard",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                                # dbc.Button("Maintenance Order",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                                # dbc.Button("Monitoring",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
+                                dbc.Button("Dashboard",style={'text-align':'left', 'border': 0, 'color': 'black'}),
+                                dbc.Button("Maintenance Order",style={'text-align':'left', 'border': 0, 'color': 'black'}),
+                                dbc.Button("Monitoring",style={'text-align':'left', 'border': 0, 'color': 'black'}),
                             ],
                             vertical=True,
                             style={'width':'100%'}
@@ -104,7 +120,7 @@ body = dbc.Container(
                     xl=2,
                     md=4,
                     xs=6,
-                    # className="pt-2",
+                    className="pt-2",
                     style={'background-color': '#f0f0f0', 'min-height': 'calc(100vh - 58px)', 'padding': '0 0 15px 0'}
                 ),
                 dbc.Col(
@@ -115,17 +131,17 @@ body = dbc.Container(
                             figure={"data": [{"x": [1, 2, 3], "y": [1, 4, 9]},{"x": [1, 2, 3], "y": [7, 5, 12]}]}
                         ),
 
-                        dash_table.DataTable(
-                            id='table',
-                            columns=[{"name": i, "id": i} for i in df.columns],
-                            data=df.to_dict('records'),
-                            style_cell_conditional=[
-                                {'if': {'column_id': 'Name'},
-                                 'width': '50px'},
-                                {'if': {'column_id': 'Age'},
-                                 'width': '50px'},
-                            ]
-                        ),
+                        # dash_table.DataTable(
+                        #     id='table',
+                        #     columns=[{"name": i, "id": i} for i in df.columns],
+                        #     data=df.to_dict('records'),
+                        #     style_cell_conditional=[
+                        #         {'if': {'column_id': 'Name'},
+                        #          'width': '50px'},
+                        #         {'if': {'column_id': 'Age'},
+                        #          'width': '50px'},
+                        #     ]
+                        # ),
                     ],
                     xl=10,
                     md=8,
@@ -145,6 +161,8 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.config.suppress_callback_exceptions = True
 app.layout = html.Div([navbar, body])
 app.title = 'COMO'
+app.scripts.config.serve_locally = True
+app.css.config.serve_locally = True
 server = app.server
 
 # add callback for toggling the collapse on small screens
@@ -162,6 +180,11 @@ def toggle_navbar_collapse(n, is_open):
 def favicon():
     return flask.send_from_directory(os.path.join(server.root_path, 'assets'),
                                      'favicon.ico')
+
+@app.server.route('/assests/<path:path>')
+def static_file(path):
+    static_folder = os.path.join(os.getcwd(), 'assests')
+    return send_from_directory(static_folder, path)
 
 if __name__ == "__main__":
     app.run_server(debug=True,host='0.0.0.0',port=8050)
