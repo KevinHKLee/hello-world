@@ -1,0 +1,17 @@
+.btn-secondary {
+	background-color: transparent
+}
+
+.btn-group-vertical>.btn:not(:last-child):not(.dropdown-toggle), .btn-group-vertical>.btn-group:not(:last-child)>.btn {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group-vertical>.btn:not(:first-child), .btn-group-vertical>.btn-group:not(:first-child)>.btn {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
