@@ -5,75 +5,59 @@ import dash_html_components as html
 import dash_dangerously_set_inner_html
 import dash_table
 import pandas as pd
+import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
+import base64
+import datetime
+import io
+pd.options.mode.chained_assignment = None
 
 # declare static components
 PLOTLY_LOGO = "/assets/april.png"
 
-# # connect to data
-# df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+# load data here
 
-# initialize list of lists 
-data = [['tom', 10], ['nick', 15], ['juli', 14]] 
-# Create the pandas DataFrame 
-df = pd.DataFrame(data, columns = ['Name', 'Age']) 
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
 
-# intialise data of lists. 
-data = {'Name':['Tom', 'nick', 'krish', 'jack'], 'Age':[20, 21, 19, 18]} 
-# Create DataFrame 
-df = pd.DataFrame(data) 
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
 
-# initialise data of lists. 
-data = {'Name':['Tom', 'Jack', 'nick', 'juli'], 'marks':[99, 98, 95, 90]} 
-# Creates pandas DataFrame. 
-df = pd.DataFrame(data, index =['rank1', 'rank2', 'rank3', 'rank4']) 
+    return html.Div([
+        html.H5(filename),
+        html.H6(datetime.datetime.fromtimestamp(date)),
 
-# List1  
-Name = ['tom', 'krish', 'nick', 'juli']  
-# List2  
-Age = [25, 30, 26, 22]  
-# get the list of tuples from two lists.  
-# and merge them by using zip().  
-list_of_tuples = list(zip(Name, Age))  
-# Assign data to tuples.  
-list_of_tuples   
-# Converting lists of tuples into  
-# pandas Dataframe.  
-df = pd.DataFrame(list_of_tuples, columns = ['Name', 'Age'])  
+        dash_table.DataTable(
+            data=df.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in df.columns]
+        ),
 
-search_bar = dbc.Row(
-    [
-        # dbc.Col(dbc.Input(type="search", placeholder="Search")),
-        # dbc.Col(
-        #     dbc.Button("Search", color="primary", className="ml-2"),
-        #     width="auto",
-        # ),
-        dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px", width="140px")),
-    ],
-    no_gutters=True,
-    className="ml-auto",
-    # style={'position': 'absolute', 'right': '10px', 'top': '5px'},
-    # align="center",
-)
+        html.Hr(),  # horizontal line
+
+        # For debugging, display the raw contents provided by the web browser
+        html.Div('Raw Content'),
+        html.Pre(contents[0:200] + '...', style={
+            'whiteSpace': 'pre-wrap',
+            'wordBreak': 'break-all'
+        })
+    ])
 
 navbar = dbc.Navbar(
     [
-        # html.A(
-        #     # Use row and col to control vertical alignment of logo / brand
-        #     dbc.Row(
-        #         [
-        #             # dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-        #             dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2", style={'font-size': '1.4rem'})),
-        #         ],
-        #         align="center",
-        #         no_gutters=True,
-        #     ),
-        #     href="#",
-        # ),
-
         dbc.Row(
             [
-                # dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
                 dbc.Col(dbc.NavbarBrand("COMO Web",className="ml-2", style={'font-size': '1.4rem'})),
                 dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px", width="140px"), style={'text-align': 'right'}),
             ],
@@ -82,8 +66,6 @@ navbar = dbc.Navbar(
             style = {'flex': '1', 'justify-content':'space-between'}
         ),
 
-        # dbc.NavbarToggler(id="navbar-toggler"),
-        # dbc.Collapse(search_bar, id="navbar-collapse", navbar=True),
     ],
     # color="dark",
     color = '#2F4F4F',
@@ -97,25 +79,15 @@ body = dbc.Container(
             [
                 dbc.Col(
                     [
-                        # html.H4("Views", style={'padding-bottom':'15px'}),
-                        # html.P('Dashboard', style={'padding-bottom':'6px'}),
-                        # html.P('Maintenance Order', style={'padding-bottom':'6px'}),
-                        # html.P('Monitoring', style={'padding-bottom':'6px'}),
-
                         dbc.ButtonGroup(
                             [
-                                # dbc.Button("Dashboard",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
-                                # dbc.Button("Maintenance Order",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
-                                # dbc.Button("Monitoring",style={'text-align':'left', 'border': 0, 'color': 'black', 'background-color':'transparent'}),
-                                dbc.Button("Dashboard",style={'text-align':'left', 'border': 0, 'color': 'black'}),
-                                dbc.Button("Maintenance Order",style={'text-align':'left', 'border': 0, 'color': 'black'}),
-                                dbc.Button("Monitoring",style={'text-align':'left', 'border': 0, 'color': 'black'}),
+                                dbc.Button("Dashboard", id='btn-1', n_clicks_timestamp=0, style={'text-align':'left', 'border': 0, 'color': 'black'}),
+                                dbc.Button("Maintenance Order", id='btn-2', n_clicks_timestamp=0, style={'text-align':'left', 'border': 0, 'color': 'black'}),
+                                dbc.Button("Monitoring", id='btn-3', n_clicks_timestamp=0, style={'text-align':'left', 'border': 0, 'color': 'black'}),
                             ],
                             vertical=True,
                             style={'width':'100%'}
                         ),
-
-                        # dbc.Button("View details", color="secondary"),
                     ],
                     xl=2,
                     md=4,
@@ -125,23 +97,9 @@ body = dbc.Container(
                 ),
                 dbc.Col(
                     [
-                        html.H4("Report"),
 
-                        dcc.Graph(
-                            figure={"data": [{"x": [1, 2, 3], "y": [1, 4, 9]},{"x": [1, 2, 3], "y": [7, 5, 12]}]}
-                        ),
+                        html.Div(id='container-button-timestamp', children='Enter a value and press submit'),
 
-                        # dash_table.DataTable(
-                        #     id='table',
-                        #     columns=[{"name": i, "id": i} for i in df.columns],
-                        #     data=df.to_dict('records'),
-                        #     style_cell_conditional=[
-                        #         {'if': {'column_id': 'Name'},
-                        #          'width': '50px'},
-                        #         {'if': {'column_id': 'Age'},
-                        #          'width': '50px'},
-                        #     ]
-                        # ),
                     ],
                     xl=10,
                     md=8,
@@ -154,8 +112,80 @@ body = dbc.Container(
     style={'max-width':'100%'},
 )
 
+page1 = html.Div(
+    [
+        html.H4("Dashboard"),
+        # html.Div(
+        #     style={'padding': 3}
+        # ),
+        dcc.Graph(
+            figure=go.Figure(
+                data=[
+                    go.Bar(
+                        x=[1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                           2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012],
+                        y=[219, 146, 112, 127, 124, 180, 236, 207, 236, 263,
+                           350, 430, 474, 526, 488, 537, 500, 439],
+                        name='Loss Cook',
+                        marker=go.bar.Marker(
+                            color='rgb(55, 83, 109)'
+                        )
+                    ),
+                ],
+                layout=go.Layout(
+                    title='Loss Cook',
+                    showlegend=False,
+                    legend=go.layout.Legend(
+                        x=0,
+                        y=1.0
+                    ),
+                    margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+                )
+            ),
+            style={'height': 300},
+            id='my-graph'
+        )  
 
+    ]
+)
 
+page2 = html.Div(
+    [
+        html.H4("Maintenance Order"),
+        dcc.Graph(
+            figure={"data": [{"x": [1, 2, 3], "y": [9, 3, 1]},{"x": [1, 2, 3], "y": [5, -5, -12]}]}
+        ),
+
+    ]
+)
+
+page3 = html.Div(
+    [
+        html.H4("Monitoring"),
+
+        dcc.Upload(
+            id='upload-data',
+            children=html.Div([
+                'Drag and Drop or ',
+                html.A('Select Files')
+            ]),
+            style={
+                'width': '100%',
+                'height': '60px',
+                'lineHeight': '60px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+                'margin': '10px'
+            },
+            # Allow multiple files to be uploaded
+            multiple=True
+        ),
+        html.Div(id='output-data-upload'),
+
+    ]
+)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.config.suppress_callback_exceptions = True
@@ -165,16 +195,38 @@ app.scripts.config.serve_locally = True
 app.css.config.serve_locally = True
 server = app.server
 
-# add callback for toggling the collapse on small screens
-@app.callback(
-    Output("navbar-collapse", "is_open"),
-    [Input("navbar-toggler", "n_clicks")],
-    [State("navbar-collapse", "is_open")],
-)
-def toggle_navbar_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
+@app.callback(Output('container-button-timestamp', 'children'),
+              [Input('btn-1', 'n_clicks_timestamp'),
+               Input('btn-2', 'n_clicks_timestamp'),
+               Input('btn-3', 'n_clicks_timestamp')])
+def displayClick(btn1, btn2, btn3):
+    if int(btn1) > int(btn2) and int(btn1) > int(btn3):
+        msg = page1
+    elif int(btn2) > int(btn1) and int(btn2) > int(btn3):
+        msg = page2
+    elif int(btn3) > int(btn1) and int(btn3) > int(btn2):
+        msg = page3
+    else:
+        msg = page1
+    return msg
+
+    # return html.Div([
+    #     html.Div('btn1: {}'.format(btn1)),
+    #     html.Div('btn2: {}'.format(btn2)),
+    #     html.Div('btn3: {}'.format(btn3)),
+    #     html.Div(msg)
+    # ])
+
+@app.callback(Output('output-data-upload', 'children'),
+              [Input('upload-data', 'contents')],
+              [State('upload-data', 'filename'),
+               State('upload-data', 'last_modified')])
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
 
 @server.route('/favicon.ico')
 def favicon():
